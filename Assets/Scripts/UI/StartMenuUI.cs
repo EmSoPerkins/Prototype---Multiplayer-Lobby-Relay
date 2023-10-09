@@ -12,13 +12,14 @@ public class StartMenuUI : MonoBehaviour
     
     private void Start()
     {
-        _startGameButton.onClick.AddListener(() =>
-            {
-                _mainMenuUI.Show();
-                Hide();
-            }
-        );
+        _startGameButton.onClick.AddListener(ShowMainMenu);
         Show();
+    }
+
+    private void ShowMainMenu()
+    {
+        _mainMenuUI.Show();
+        Hide();
     }
     
     private void Show()

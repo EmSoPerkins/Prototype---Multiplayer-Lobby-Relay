@@ -6,14 +6,22 @@ using UnityEngine.UI;
 public class MultiplayerMenuUI : MonoBehaviour
 {
     [SerializeField] private MainMenuUI _mainMenuUI;
-    [SerializeField] private Button _startButton;
+    [SerializeField] private Button _startHostButton;
     [SerializeField] private Button _mainMenuButton;
+    [SerializeField] private Button _startClientButton;
 
+    
     void Start()
     {
-        _startButton.onClick.AddListener(() =>
+        _startHostButton.onClick.AddListener(() =>
             {
-                Debug.Log("Game Starting");
+                InnGameMultiplayer.Instance.StartHost();
+                Hide();
+            }
+        );
+        _startClientButton.onClick.AddListener(() =>
+            {
+                InnGameMultiplayer.Instance.StartClient();
                 Hide();
             }
         );
