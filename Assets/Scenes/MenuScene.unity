@@ -2143,7 +2143,7 @@ GameObject:
   - component: {fileID: 888057923}
   - component: {fileID: 888057922}
   m_Layer: 5
-  m_Name: JoinGameUsingCode
+  m_Name: JoinGame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2889,7 +2889,7 @@ GameObject:
   - component: {fileID: 1158971644}
   - component: {fileID: 1158971643}
   m_Layer: 5
-  m_Name: Start
+  m_Name: StartHost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3656,9 +3656,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mainMenuUI: {fileID: 398753722}
-  _startHostButton: {fileID: 0}
+  _startHostButton: {fileID: 1158971643}
   _mainMenuButton: {fileID: 1194618770}
-  _startClientButton: {fileID: 0}
+  _startClientButton: {fileID: 888057922}
 --- !u!114 &1475841083
 MonoBehaviour:
   m_ObjectHideFlags: 0
