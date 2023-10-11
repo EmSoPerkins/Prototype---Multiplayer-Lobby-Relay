@@ -13,13 +13,13 @@ public class InnGameManager : NetworkBehaviour
     [SerializeField] private Transform playerPrefab;
 
 
-    private Dictionary<ulong, bool> playerSpawnedDictionary;
+    //private Dictionary<ulong, bool> playerSpawnedDictionary;
     private bool isLocalPlayerSpawned;
     
     private void Awake()
     {
         Instance = this;
-        playerSpawnedDictionary = new Dictionary<ulong, bool>();
+        //playerSpawnedDictionary = new Dictionary<ulong, bool>();
     }
 
     // Start is called before the first frame update
@@ -34,7 +34,7 @@ public class InnGameManager : NetworkBehaviour
         if (IsServer)
         {
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += SceneManager_OnLoadEventCompleted;
-            InnGameMultiplayer.Instance.OnPlayerDataNetworkListChanged += InnGameMultiplayer_OnPlayerDataNetworkListChanged;
+            //InnGameMultiplayer.Instance.OnPlayerDataNetworkListChanged += InnGameMultiplayer_OnPlayerDataNetworkListChanged;
             
         }
     }
@@ -52,33 +52,42 @@ public class InnGameManager : NetworkBehaviour
 
     private void Update()
     {
-       /* foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+        if (!IsServer)
         {
-            Debug.Log($"update: {clientId}");
-        }*/
+            return;
+        }
     }   
     
     // this is useful after we already have everyone connected and we're trying to load different scenes
     private void SceneManager_OnLoadEventCompleted(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
     {
         Debug.Log("SceneManager_OnLoadEventCompleted");
-        ConnectPlayer();
+        
+        foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+        {
+            Transform playerTransform = Instantiate(playerPrefab);
+            playerTransform.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+        }
     }
 
     private void ConnectPlayer()
     {
         foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
         {
-            Debug.Log($"Player: {clientId} is in the playerSpawnedDictionary {playerSpawnedDictionary.ContainsKey(clientId)}");
-            if (!playerSpawnedDictionary.ContainsKey(clientId))
-            {
-                Debug.Log($"Spawning Player: {clientId}");
-                Transform playerTransform = Instantiate(playerPrefab); // the server spawns the client's player prefab for them
+            //Debug.Log($"Player: {clientId} is in the playerSpawnedDictionary {playerSpawnedDictionary.ContainsKey(clientId)}");
+           // if (!playerSpawnedDictionary.ContainsKey(clientId))
+            //{
+                // Debug.Log($"Spawning Player: {clientId}");
+                
+                Transform playerTransform = Instantiate(playerPrefab);
                 playerTransform.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
-                playerSpawnedDictionary[clientId] = true;
+                
+                // Transform playerTransform = Instantiate(playerPrefab); // the server spawns the client's player prefab for them
+                // playerTransform.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+                // playerSpawnedDictionary[clientId] = true;
                 //isLocalPlayerSpawned = true;
-                Player.LocalInstance.OnPlayerSpawned += Player_OnPlayerSpawned;
-            }
+                //Player.LocalInstance.OnPlayerSpawned += Player_OnPlayerSpawned;
+            //}
             
             //Debug.Log($"Player: {clientId} - is Spawned: {playerSpawnedDictionary[clientId]}");
         }

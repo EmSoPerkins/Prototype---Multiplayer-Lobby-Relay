@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 
 public class InnGameMultiplayer : NetworkBehaviour
 {
+    public const int MAX_PLAYER_AMOUNT = 4;
     private const string GAMEPLAY_SCENE = "GameScene";
     private const string LOBBY_SCENE = "LobbyScene";
 
@@ -55,7 +56,9 @@ public class InnGameMultiplayer : NetworkBehaviour
         OnPlayerDataNetworkListChanged?.Invoke(this, EventArgs.Empty);
     }
     
-    //this code will run only on the server
+    // Runs on Servers
+    // Connect Player And enable their prefab, but not their visuals or gameplay controls
+    // we need to make sure the player prefab visuals are disabled and their movement controls are disabled BEFORE we do anything else 
     private void NetworkManager_Server_OnClientConnectedCallback(ulong clientId)
     {
         _playerDataNetworkList.Add(new PlayerData(clientId, _playerName));
@@ -67,21 +70,26 @@ public class InnGameMultiplayer : NetworkBehaviour
         }
         
         SetPlayerNameServerRpc(GetPlayerName());
-        SetPlayerIdServerRpc();
+       // SetPlayerIdServerRpc();
     }
     
-    //this code will run only on the client
+    // Runs on Clients
+   
     private void NetworkManager_Client_OnClientConnectedCallback(ulong clientId)
     {
         Debug.Log($"Client: {clientId} connected.");
+        Debug.Log($"Current Players:");
+
         
         foreach (PlayerData playerData in _playerDataNetworkList)
         {
-            Debug.Log(playerData.clientId);
+            Debug.Log($"ClientID: {playerData.clientId}");
         }
         
+        Debug.Log($"Setting Player Name");
+        
         SetPlayerNameServerRpc(GetPlayerName());
-        SetPlayerIdServerRpc();
+        //SetPlayerIdServerRpc();
         
         //SetPlayerIdServerRpc(AuthenticationService.Instance.PlayerId);
     }
@@ -117,19 +125,19 @@ public class InnGameMultiplayer : NetworkBehaviour
         _playerDataNetworkList[playerDataIndex] = playerData;
     }
     
-    [ServerRpc(RequireOwnership = false)]
-    private void SetPlayerIdServerRpc(ServerRpcParams serverRpcParams = default)
-    {
-        int playerDataIndex = GetPlayerDataIndexFromClientId(serverRpcParams.Receive.SenderClientId);
-
-        PlayerData playerData = _playerDataNetworkList[playerDataIndex];
-
-        //playerData.playerId = playerId;
-
-        _playerDataNetworkList[playerDataIndex] = playerData;
-        
-        // Should be telling the server that hey, give me this index and everything
-    }
+    // [ServerRpc(RequireOwnership = false)]
+    // private void SetPlayerIdServerRpc(ServerRpcParams serverRpcParams = default)
+    // {
+    //     int playerDataIndex = GetPlayerDataIndexFromClientId(serverRpcParams.Receive.SenderClientId);
+    //
+    //     PlayerData playerData = _playerDataNetworkList[playerDataIndex];
+    //
+    //     //playerData.playerId = playerId;
+    //
+    //     _playerDataNetworkList[playerDataIndex] = playerData;
+    //     
+    //     // Should be telling the server that hey, give me this index and everything
+    // }
     
     public bool IsPlayerIndexConnected(int playerIndex)
     {
