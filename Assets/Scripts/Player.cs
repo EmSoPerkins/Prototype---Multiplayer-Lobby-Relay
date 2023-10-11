@@ -47,10 +47,10 @@ public class Player : NetworkBehaviour
             LocalInstance = this;
         }
         
-        transform.position =
-            spawnPositionList[InnGameMultiplayer.Instance.GetPlayerDataIndexFromClientId(OwnerClientId)];
+        //transform.position =
+         //   spawnPositionList[InnGameMultiplayer.Instance.GetPlayerDataIndexFromClientId(OwnerClientId)];
         
-        //RemoveVisualsAndControls();
+        RemoveVisualsAndControls();
     }
     
     
@@ -73,9 +73,9 @@ public class Player : NetworkBehaviour
     
     private void Interact_Performed(InputAction.CallbackContext obj)
     {
-        Debug.Log("Player Hit Interact Key");
-        if (!playerIsActive)
+        if (IsOwner && !playerIsActive)
         {
+            Debug.Log("Player Hit Interact Key");
             SpawnPlayer();
         }
     }
@@ -87,7 +87,7 @@ public class Player : NetworkBehaviour
             spawnPositionList[InnGameMultiplayer.Instance.GetPlayerDataIndexFromClientId(OwnerClientId)];
         AddVisualsAndControls();
     }
-
+    
     // player is reenabled visually locally, but not on the server
     // the server will correctly position the characters on both
     // the client still won't be able to move afterwards

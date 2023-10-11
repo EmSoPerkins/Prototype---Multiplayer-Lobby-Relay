@@ -13,7 +13,7 @@ public class InnGameManager : NetworkBehaviour
     [SerializeField] private Transform playerPrefab;
 
 
-    //private Dictionary<ulong, bool> playerSpawnedDictionary;
+    private Dictionary<ulong, bool> playerSpawnedDictionary;
     private bool isLocalPlayerSpawned;
     
     private void Awake()

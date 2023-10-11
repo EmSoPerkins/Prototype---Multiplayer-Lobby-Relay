@@ -116,6 +116,7 @@ public class InnGameMultiplayer : NetworkBehaviour
         throw new NotImplementedException();
     }
     
+    // Tells the Server Something
     [ServerRpc(RequireOwnership = false)]
     private void SetPlayerNameServerRpc(string playerName, ServerRpcParams serverRpcParams = default)
     {
