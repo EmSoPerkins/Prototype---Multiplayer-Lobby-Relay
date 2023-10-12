@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.UI;
 
 public class Player : NetworkBehaviour
 {
@@ -13,22 +14,13 @@ public class Player : NetworkBehaviour
     
     [SerializeField] private List<Vector3> spawnPositionList;
     [SerializeField] private Transform playerVisual;
-    [SerializeField] private bool playerIsActive;
+    [SerializeField] private NetworkVariable<bool> playerIsSpawned = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     
     private PlayerInputActions playerInputActions;
     
     // Start is called before the first frame update
     void Start()
     {
-        // if (IsServer)
-        // {
-        //     SpawnPlayer();
-        // }
-        // else
-        // {
-        //     RemoveVisualsAndControls();
-        // }
-        
         playerInputActions = new PlayerInputActions();
         playerInputActions.Player.Enable();
         playerInputActions.Player.Interact.performed += Interact_Performed;
@@ -37,7 +29,6 @@ public class Player : NetworkBehaviour
     private void RemoveVisualsAndControls()
     {
         playerVisual.gameObject.SetActive(false);
-        playerIsActive = false;
     }
     
     public override void OnNetworkSpawn()
@@ -46,11 +37,28 @@ public class Player : NetworkBehaviour
         {
             LocalInstance = this;
         }
+
+        playerIsSpawned.OnValueChanged += (value, newValue) =>
+        {
+            Debug.Log(OwnerClientId + "; has Spawned, Updating Players");
+            UpdatePlayers();
+        };
+        
+        if (IsServer)
+        {
+            UpdatePlayers();
+            playerIsSpawned.Value = true;
+        }
+        else
+        {
+            RemoveVisualsAndControls();
+        }
         
         //transform.position =
          //   spawnPositionList[InnGameMultiplayer.Instance.GetPlayerDataIndexFromClientId(OwnerClientId)];
-        
-        RemoveVisualsAndControls();
+
+
+  
     }
     
     
@@ -58,7 +66,7 @@ public class Player : NetworkBehaviour
     void Update()
     {
         //if we're not the owner or we're not active, just return
-        if (!IsOwner || !playerIsActive) return;
+        if (!IsOwner || playerIsSpawned.Value == false) return;
         
         
         Vector2 inputVector = playerInputActions.Player.Move.ReadValue<Vector2>();
@@ -73,28 +81,36 @@ public class Player : NetworkBehaviour
     
     private void Interact_Performed(InputAction.CallbackContext obj)
     {
-        if (IsOwner && !playerIsActive)
+        if (IsOwner && playerIsSpawned.Value == false)
         {
-            Debug.Log("Player Hit Interact Key");
-            SpawnPlayer();
+            Debug.Log("Local Player Hit Interact Key to spawn Herself");
+            playerIsSpawned.Value = true;
+            InnGameManager.Instance.SpawnPlayer();
         }
     }
 
+    private void UpdatePlayers()
+    {
+        Debug.Log("Updating Player Prefab with Owner of: " + OwnerClientId);
+        transform.position =
+            spawnPositionList[InnGameMultiplayer.Instance.GetPlayerDataIndexFromClientId(OwnerClientId)];
+        AddPlayerVisuals();
+    }
+    
     private void SpawnPlayer()
     {
         Debug.Log("Player Data Index: " + InnGameMultiplayer.Instance.GetPlayerDataIndexFromClientId(OwnerClientId));
         transform.position =
             spawnPositionList[InnGameMultiplayer.Instance.GetPlayerDataIndexFromClientId(OwnerClientId)];
-        AddVisualsAndControls();
+        AddPlayerVisuals();
     }
     
     // player is reenabled visually locally, but not on the server
     // the server will correctly position the characters on both
     // the client still won't be able to move afterwards
-    private void AddVisualsAndControls()
+    private void AddPlayerVisuals()
     {
         playerVisual.gameObject.SetActive(true);
-        playerIsActive = true;
     }
     
     public NetworkObject GetNetworkObject()

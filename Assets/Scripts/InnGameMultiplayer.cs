@@ -11,7 +11,7 @@ public class InnGameMultiplayer : NetworkBehaviour
     public const int MAX_PLAYER_AMOUNT = 4;
     private const string GAMEPLAY_SCENE = "GameScene";
     private const string LOBBY_SCENE = "LobbyScene";
-
+    private const string NEW_LOBBY_SCENE = "NewLobbyScene";
     public static InnGameMultiplayer Instance { get; private set; }
 
     public event EventHandler OnPlayerDataNetworkListChanged;
@@ -31,12 +31,13 @@ public class InnGameMultiplayer : NetworkBehaviour
     
     public void StartHost()
     { 
-        Debug.Log("Host Starting"); 
         NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_Server_OnClientConnectedCallback;
         NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_Server_OnClientDisconnectCallback;
         
+        Debug.Log("Host Starting"); 
         NetworkManager.Singleton.StartHost();
-        NetworkManager.Singleton.SceneManager.LoadScene(LOBBY_SCENE, LoadSceneMode.Single);
+        Debug.Log("Host Loading Next Scene");
+        NetworkManager.Singleton.SceneManager.LoadScene(NEW_LOBBY_SCENE, LoadSceneMode.Single);
     }
 
     public void StartClient()
@@ -64,9 +65,11 @@ public class InnGameMultiplayer : NetworkBehaviour
         _playerDataNetworkList.Add(new PlayerData(clientId, _playerName));
         
         Debug.Log($"Server: {clientId} connected.");
+        Debug.Log($"Current Players:");
+
         foreach (PlayerData playerData in _playerDataNetworkList)
         {
-            Debug.Log(playerData.clientId);
+            Debug.Log($"ClientID: {playerData.clientId}");
         }
         
         SetPlayerNameServerRpc(GetPlayerName());
@@ -125,6 +128,22 @@ public class InnGameMultiplayer : NetworkBehaviour
         playerData.playerName = playerName;
         _playerDataNetworkList[playerDataIndex] = playerData;
     }
+
+    // public void SpawnPlayer()
+    // {
+    //     SpawnPlayerServerRpc();
+    // }
+    //
+    // // This function is called by spawn player and makes sure that the server knows and stores in it's state that the player should be spawned.
+    // [ServerRpc(RequireOwnership = false)]
+    // private void SpawnPlayerServerRpc(ServerRpcParams serverRpcParams = default)
+    // {
+    //     int playerDataIndex = GetPlayerDataIndexFromClientId(serverRpcParams.Receive.SenderClientId);
+    //     PlayerData playerData = _playerDataNetworkList[playerDataIndex];
+    //     playerData.isSpawned = true;
+    //     _playerDataNetworkList[playerDataIndex] = playerData;
+    // }
+    
     
     // [ServerRpc(RequireOwnership = false)]
     // private void SetPlayerIdServerRpc(ServerRpcParams serverRpcParams = default)

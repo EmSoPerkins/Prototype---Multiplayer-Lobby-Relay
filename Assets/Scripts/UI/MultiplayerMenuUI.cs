@@ -15,6 +15,7 @@ public class MultiplayerMenuUI : MonoBehaviour
     {
         _startHostButton.onClick.AddListener(() =>
             {
+                Debug.Log("Starting Host");
                 InnGameMultiplayer.Instance.StartHost();
                 Hide();
             }
